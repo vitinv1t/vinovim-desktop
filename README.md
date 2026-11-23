@@ -1,70 +1,59 @@
 <div align="center">
-  <img src="composeApp/src/desktopMain/resources/icons/vinovim-app-icon-transparent.png" alt="Vinovim" width="100" />
-
+  <img src="assets/vinovim-logo.png" alt="Vinovim Desktop" width="96" />
   <h1>Vinovim Desktop</h1>
-
-  <p>Seu player de mídia. Suas fontes. Do seu jeito.</p>
-
+  <p>Player de mídia gratuito para Windows, macOS e Linux.</p>
   <p>
-    <a href="https://github.com/vitinv1t/vinovim-desktop/releases">📦 Download</a> ·
-    <a href="https://vinovim.tv">🌐 Site</a> ·
-    <a href="https://github.com/vitinv1t/vinovim-desktop/issues">🐛 Reportar Bug</a>
+    <a href="https://github.com/vitinv1t/vinovim-desktop/releases">Download</a> &nbsp;·&nbsp;
+    <a href="https://vinovim.tv">Site</a> &nbsp;·&nbsp;
+    <a href="https://github.com/vitinv1t/vinovim-desktop/issues">Reportar problema</a>
   </p>
-
-  <img src="https://img.shields.io/badge/plataforma-Windows%20%7C%20macOS%20%7C%20Linux-blue" alt="Plataformas" />
-  <img src="https://img.shields.io/badge/licença-GPLv3-green" alt="Licença" />
-  <img src="https://img.shields.io/badge/status-alpha-orange" alt="Status" />
 </div>
 
----
+> **Alpha — só para testadores.** O app está em desenvolvimento. Funcionalidades, dados salvos e compatibilidade podem mudar sem aviso a qualquer atualização.
 
-> ⚠️ **Alpha — Apenas para testadores**
->
-> O Vinovim Desktop está em desenvolvimento ativo. Espere mudanças frequentes, bugs e instabilidade. Não use como app principal no dia a dia.
+&nbsp;
 
----
+## O que é
 
-## O que é o Vinovim?
+Vinovim Desktop é um player de mídia open source que funciona com as suas próprias fontes de conteúdo. Ele organiza tudo em uma biblioteca com capas, avaliações, legendas automáticas e progresso salvo entre dispositivos. Sem assinatura, sem plataforma fechada.
 
-O Vinovim Desktop é um app de mídia gratuito e de código aberto que roda em Windows, macOS e Linux. Ele não te prende em nenhuma plataforma — você traz suas próprias fontes de conteúdo e o Vinovim cuida do resto: biblioteca organizada, capas, avaliações, legendas automáticas e progresso sincronizado entre dispositivos.
+Roda no mesmo código base que o Vinovim para Android e iOS.
 
-Feito para quem quer controle total sobre como e onde assiste.
-
----
+&nbsp;
 
 ## Download
-
-Baixe a versão mais recente diretamente no [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
 
 | Sistema | Formato |
 |---|---|
 | Windows | `.msi` |
-| macOS | `.dmg` |
-| Linux | `.deb` · `.rpm` · `.flatpak` · `.AppImage` |
+| macOS | `.dmg` (arm64 e x86_64) |
+| Linux | `.deb` `.rpm` `.flatpak` `.AppImage` |
 
----
+Todas as versões em [Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
 
-## Compilar e rodar
+&nbsp;
+
+## Como compilar
 
 ```bash
 git clone https://github.com/vitinv1t/vinovim-desktop.git
 cd vinovim-desktop
 ```
 
-**Rodar em modo desenvolvimento:**
+Rodar em desenvolvimento:
 
 ```bash
-# macOS / Linux
+# macOS e Linux
 ./gradlew :composeApp:run
 
 # Windows
 .\gradlew.bat :composeApp:run
 ```
 
-**Gerar pacote de release:**
+Gerar pacote de release:
 
 ```bash
-# Detecta o sistema automaticamente
+# Detecta o sistema atual
 ./gradlew :composeApp:packageReleaseDistributionForCurrentOS
 
 # Windows — MSI
@@ -77,82 +66,63 @@ cd vinovim-desktop
 ./gradlew :composeApp:packageReleaseDeb
 ```
 
----
+&nbsp;
 
-## Android & iOS
-
-O mesmo código roda em mobile. Para compilar:
+## Android e iOS
 
 ```bash
 # Android
 ./gradlew :androidApp:assembleRelease
 
-# iOS — abra no Xcode
+# iOS — abrir no Xcode
 open iosApp/iosApp.xcodeproj
 ```
 
----
+&nbsp;
 
-## Tecnologias
+## Tecnologia
 
-| Camada | Tecnologia |
+| | |
 |---|---|
 | Interface | Compose Multiplatform |
 | Linguagem | Kotlin Multiplatform |
-| Vídeo (Android) | ExoPlayer + libass + libmpv |
-| Vídeo (Desktop) | libmpv via JNI |
+| Vídeo no Android | ExoPlayer + libass + libmpv |
+| Vídeo no Desktop | libmpv via JNI |
 | Rede | Ktor |
-| Injeção de dependência | Koin |
-| Concorrência | Kotlin Coroutines & Flow |
-| Streaming P2P | Vinovim Engine |
-| Monitoramento | Sentry |
+| P2P | Vinovim Engine |
 
----
+&nbsp;
 
-## Contribuindo
+## Contribuir
 
-Pull requests são bem-vindos. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes de começar.
+Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir um pull request. Bugs e sugestões vão em [Issues](https://github.com/vitinv1t/vinovim-desktop/issues).
 
-- **Bugs e sugestões:** [Issues](https://github.com/vitinv1t/vinovim-desktop/issues)
-- **Código:** [Pull Requests](https://github.com/vitinv1t/vinovim-desktop/pulls)
-
----
+&nbsp;
 
 ## Licença
 
 [GNU General Public License v3.0](LICENSE)
 
----
+&nbsp;
 
-<br/>
+<details>
+<summary>🇬🇧 English</summary>
 
-<div align="center">
+&nbsp;
 
----
+Vinovim Desktop is a free, open-source media player for Windows, macOS, and Linux. Use your own content sources — Vinovim organizes them into a library with artwork, ratings, subtitles, and playback progress synced across devices. No subscription, no locked platform.
 
-  <img src="composeApp/src/desktopMain/resources/icons/vinovim-app-icon-transparent.png" alt="Vinovim" width="60" />
+> **Alpha — testers only.** Features, saved data, and compatibility may change without notice.
 
-  <h2>English</h2>
-
-  <p>Your media player. Your sources. Your way.</p>
-
-</div>
-
-Vinovim Desktop is a free, open-source media app for Windows, macOS, and Linux. Bring your own content sources — Vinovim organizes everything into a library with artwork, ratings, automatic subtitles, and playback progress synced across your devices.
-
-> ⚠️ **Alpha — Testers only.** Active development, frequent changes, expect bugs.
-
-### Download
-
-Get the latest release from [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
+**Download** — [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases)
 
 | Platform | Format |
 |---|---|
 | Windows | `.msi` |
-| macOS | `.dmg` |
-| Linux | `.deb` · `.rpm` · `.flatpak` · `.AppImage` |
+| macOS | `.dmg` (arm64 and x86_64) |
+| Linux | `.deb` `.rpm` `.flatpak` `.AppImage` |
 
-### Build from source
+**Build from source**
 
 ```bash
 git clone https://github.com/vitinv1t/vinovim-desktop.git
@@ -160,24 +130,10 @@ cd vinovim-desktop
 ./gradlew :composeApp:run
 ```
 
-### Tech Stack
+**Tech stack** — Compose Multiplatform, Kotlin Multiplatform, libmpv, ExoPlayer, Ktor, Koin, Kotlin Coroutines, Vinovim Engine (P2P), Sentry.
 
-| Layer | Technology |
-|---|---|
-| UI | Compose Multiplatform |
-| Language | Kotlin Multiplatform |
-| Video (Android) | ExoPlayer + libass + libmpv |
-| Video (Desktop) | libmpv via JNI |
-| Networking | Ktor |
-| DI | Koin |
-| Async | Kotlin Coroutines & Flow |
-| P2P Streaming | Vinovim Engine |
-| Monitoring | Sentry |
+**Contributing** — Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-### Contributing
+**License** — [GNU General Public License v3.0](LICENSE)
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
-
-### License
-
-[GNU General Public License v3.0](LICENSE)
+</details>
