@@ -1,118 +1,120 @@
 <div align="center">
-  <img src="assets/vinovim-logo.png" alt="Vinovim" width="120" />
+  <img src="composeApp/src/desktopMain/resources/icons/vinovim-app-icon-transparent.png" alt="Vinovim" width="100" />
 
   <h1>Vinovim Desktop</h1>
 
-  Um app de mídia gratuito e open-source para **Windows**, **macOS** e **Linux**.<br/>
-  Traga suas próprias fontes. O Vinovim transforma tudo em uma biblioteca com capas, avaliações, legendas e seu progresso salvo em todos os dispositivos.
+  <p>Seu player de mídia. Suas fontes. Do seu jeito.</p>
 
-  [Site](https://vinovim.tv) · [Releases](https://github.com/vitinv1t/vinovim-desktop/releases) · [Suporte](https://vinovim.tv/support)
+  <p>
+    <a href="https://github.com/vitinv1t/vinovim-desktop/releases">📦 Download</a> ·
+    <a href="https://vinovim.tv">🌐 Site</a> ·
+    <a href="https://github.com/vitinv1t/vinovim-desktop/issues">🐛 Reportar Bug</a>
+  </p>
 
-  ---
-
-  *[English version below](#english)*
+  <img src="https://img.shields.io/badge/plataforma-Windows%20%7C%20macOS%20%7C%20Linux-blue" alt="Plataformas" />
+  <img src="https://img.shields.io/badge/licença-GPLv3-green" alt="Licença" />
+  <img src="https://img.shields.io/badge/status-alpha-orange" alt="Status" />
 </div>
 
 ---
 
-> ⚠️ **Software em Alpha — Desenvolvimento Lento — Apenas para Testadores**
+> ⚠️ **Alpha — Apenas para testadores**
 >
-> O Vinovim Desktop está em alpha e é destinado apenas a testadores. Está em desenvolvimento e não é adequado para uso diário.
->
-> Espere mudanças incompatíveis a cada atualização. Funcionalidades, configurações, dados armazenados e compatibilidade podem mudar ou parar de funcionar sem aviso. Não use esta versão como seu app de mídia principal e reporte qualquer problema encontrado durante os testes.
+> O Vinovim Desktop está em desenvolvimento ativo. Espere mudanças frequentes, bugs e instabilidade. Não use como app principal no dia a dia.
 
 ---
 
-## Baixar o Vinovim Desktop
+## O que é o Vinovim?
 
-Baixe a versão mais recente em [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
+O Vinovim Desktop é um app de mídia gratuito e de código aberto que roda em Windows, macOS e Linux. Ele não te prende em nenhuma plataforma — você traz suas próprias fontes de conteúdo e o Vinovim cuida do resto: biblioteca organizada, capas, avaliações, legendas automáticas e progresso sincronizado entre dispositivos.
 
-- **Windows:** instalador MSI
-- **macOS:** instalador DMG
-- **Linux:** DEB, RPM, Flatpak ou AppImage
+Feito para quem quer controle total sobre como e onde assiste.
 
 ---
 
-## Compilar do código-fonte
+## Download
+
+Baixe a versão mais recente diretamente no [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
+
+| Sistema | Formato |
+|---|---|
+| Windows | `.msi` |
+| macOS | `.dmg` |
+| Linux | `.deb` · `.rpm` · `.flatpak` · `.AppImage` |
+
+---
+
+## Compilar e rodar
 
 ```bash
 git clone https://github.com/vitinv1t/vinovim-desktop.git
 cd vinovim-desktop
 ```
 
-### Executar o app
+**Rodar em modo desenvolvimento:**
 
 ```bash
+# macOS / Linux
 ./gradlew :composeApp:run
-```
 
-**No Windows PowerShell:**
-
-```powershell
+# Windows
 .\gradlew.bat :composeApp:run
 ```
 
-### Empacotar o app
-
-Gera um pacote de release para o sistema atual:
+**Gerar pacote de release:**
 
 ```bash
+# Detecta o sistema automaticamente
 ./gradlew :composeApp:packageReleaseDistributionForCurrentOS
-```
 
-**Por plataforma:**
-
-Windows PowerShell:
-```powershell
+# Windows — MSI
 .\gradlew.bat :composeApp:packageReleaseMsi --rerun-tasks
-```
 
-macOS:
-```bash
+# macOS — DMG
 ./scripts/build-macos-release-dmgs.sh --package-only
-```
 
-Linux:
-```bash
+# Linux — DEB
 ./gradlew :composeApp:packageReleaseDeb
 ```
-
-O app compartilhado é construído com [Kotlin Multiplatform](https://www.jetbrains.com/kotlin-multiplatform/) e [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/).
 
 ---
 
 ## Android & iOS
 
-O Vinovim também roda em Android e iOS a partir do mesmo código compartilhado.
+O mesmo código roda em mobile. Para compilar:
 
-- **Android:** `./gradlew :androidApp:assembleRelease`
-- **iOS:** abra `iosApp/iosApp.xcodeproj` no Xcode
+```bash
+# Android
+./gradlew :androidApp:assembleRelease
+
+# iOS — abra no Xcode
+open iosApp/iosApp.xcodeproj
+```
 
 ---
 
-## Stack Tecnológica
+## Tecnologias
 
 | Camada | Tecnologia |
 |---|---|
-| UI | Compose Multiplatform (Desktop / Android / iOS) |
+| Interface | Compose Multiplatform |
 | Linguagem | Kotlin Multiplatform |
 | Vídeo (Android) | ExoPlayer + libass + libmpv |
 | Vídeo (Desktop) | libmpv via JNI |
 | Rede | Ktor |
-| DI | Koin |
-| Assíncrono | Kotlin Coroutines & Flow |
-| Streaming P2P | Vinovim Engine (BitTorrent customizado) |
-| Relatórios de Erros | Sentry |
+| Injeção de dependência | Koin |
+| Concorrência | Kotlin Coroutines & Flow |
+| Streaming P2P | Vinovim Engine |
+| Monitoramento | Sentry |
 
 ---
 
 ## Contribuindo
 
-Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir um pull request.
+Pull requests são bem-vindos. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes de começar.
 
-- Bugs → [GitHub Issues](https://github.com/vitinv1t/vinovim-desktop/issues)
-- Sugestões → [GitHub Issues](https://github.com/vitinv1t/vinovim-desktop/issues)
-- Pull Requests → [GitHub Pull Requests](https://github.com/vitinv1t/vinovim-desktop/pulls)
+- **Bugs e sugestões:** [Issues](https://github.com/vitinv1t/vinovim-desktop/issues)
+- **Código:** [Pull Requests](https://github.com/vitinv1t/vinovim-desktop/pulls)
 
 ---
 
@@ -122,28 +124,33 @@ Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes
 
 ---
 
-<a name="english"></a>
+<br/>
 
 <div align="center">
-  <h2>🇬🇧 English</h2>
+
+---
+
+  <img src="composeApp/src/desktopMain/resources/icons/vinovim-app-icon-transparent.png" alt="Vinovim" width="60" />
+
+  <h2>English</h2>
+
+  <p>Your media player. Your sources. Your way.</p>
+
 </div>
 
-A free, open-source media app for **Windows**, **macOS**, and **Linux**.<br/>
-Bring your own sources. Vinovim turns them into a library with artwork, ratings, subtitles, and your place saved on every screen.
+Vinovim Desktop is a free, open-source media app for Windows, macOS, and Linux. Bring your own content sources — Vinovim organizes everything into a library with artwork, ratings, automatic subtitles, and playback progress synced across your devices.
 
-> ⚠️ **Alpha Software — Slow Development — Testers Only**
->
-> Vinovim Desktop is currently in alpha and is intended only for testers. It is under active development and not suitable for daily use.
->
-> Expect breaking changes with every update. Features, settings, stored data, and compatibility may change or stop working without notice. Do not rely on this build as your primary media app, and report any issues you encounter.
+> ⚠️ **Alpha — Testers only.** Active development, frequent changes, expect bugs.
 
-### Get Vinovim Desktop
+### Download
 
-Download the latest build from [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
+Get the latest release from [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
 
-- **Windows:** MSI installer
-- **macOS:** DMG installer
-- **Linux:** DEB, RPM, Flatpak, or AppImage
+| Platform | Format |
+|---|---|
+| Windows | `.msi` |
+| macOS | `.dmg` |
+| Linux | `.deb` · `.rpm` · `.flatpak` · `.AppImage` |
 
 ### Build from source
 
@@ -157,19 +164,19 @@ cd vinovim-desktop
 
 | Layer | Technology |
 |---|---|
-| UI | Compose Multiplatform (Desktop / Android / iOS) |
+| UI | Compose Multiplatform |
 | Language | Kotlin Multiplatform |
 | Video (Android) | ExoPlayer + libass + libmpv |
 | Video (Desktop) | libmpv via JNI |
 | Networking | Ktor |
 | DI | Koin |
 | Async | Kotlin Coroutines & Flow |
-| P2P Streaming | Vinovim Engine (custom BitTorrent) |
-| Crash Reporting | Sentry |
+| P2P Streaming | Vinovim Engine |
+| Monitoring | Sentry |
 
 ### Contributing
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ### License
 
