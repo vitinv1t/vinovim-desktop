@@ -9,7 +9,7 @@
   </p>
 </div>
 
-> **Alpha — só para testadores.** O app está em desenvolvimento. Funcionalidades, dados salvos e compatibilidade podem mudar sem aviso a qualquer atualização.
+> 🚧 **Versão alpha.** O Vinovim Desktop ainda está sendo construído. Use por conta e risco — coisas vão quebrar, dados podem ser perdidos e atualizações podem mudar tudo. Se você está aqui, é porque quer ajudar a testar, e isso é muito bem-vindo.
 
 &nbsp;
 
@@ -112,7 +112,7 @@ Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir um pull request. Bugs e
 
 Vinovim Desktop is a free, open-source media player for Windows, macOS, and Linux. Use your own content sources — Vinovim organizes them into a library with artwork, ratings, subtitles, and playback progress synced across devices. No subscription, no locked platform.
 
-> **Alpha — testers only.** Features, saved data, and compatibility may change without notice.
+> 🚧 **Alpha build.** Things will break, data may be lost, and updates can change everything. If you're here, you're a tester — and that's appreciated.
 
 **Download** — [GitHub Releases](https://github.com/vitinv1t/vinovim-desktop/releases)
 
