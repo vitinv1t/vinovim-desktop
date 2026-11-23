@@ -1,0 +1,8 @@
+package com.vinovim.app.core.ui
+
+import androidx.compose.runtime.Composable
+
+@Composable
+actual fun PlatformKeyboardNavigationHost() {
+    // No-op on iOS — keyboard navigation is handled by the platform.
+}

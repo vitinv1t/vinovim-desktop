@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path
+        name="vinovim_updates"
+        path="updates/" />
+    <cache-path
+        name="vinovim_subtitles"
+        path="subtitles/" />
+    <files-path
+        name="vinovim_downloads"
+        path="downloads/" />
+</paths>

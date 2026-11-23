@@ -1,0 +1,269 @@
+package com.vinovim.app.features.player
+
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.systemGestures
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vinovim.app.core.ui.LocalFold
+import com.vinovim.app.controller.ControllerDirection
+import com.vinovim.app.controller.ControllerEvent
+import com.vinovim.app.controller.ControllerFocusEngine
+import com.vinovim.app.controller.XboxButton
+import com.vinovim.app.controller.audio.ControllerSoundPlayer
+import com.vinovim.app.features.addons.AddonRepository
+import com.vinovim.app.isDesktop
+import com.vinovim.app.features.details.MetaDetailsRepository
+import com.vinovim.app.features.details.MetaScreenSettingsRepository
+import com.vinovim.app.features.p2p.P2pSettingsRepository
+import com.vinovim.app.features.p2p.P2pStreamingEngine
+import com.vinovim.app.features.watched.WatchedRepository
+import com.vinovim.app.features.watchprogress.WatchProgressRepository
+import com.vinovim.app.resources.Res
+import com.vinovim.app.resources.compose_player_airs_prefix
+import com.vinovim.app.resources.compose_player_downloaded
+import com.vinovim.app.resources.compose_player_resize_fill
+import com.vinovim.app.resources.compose_player_resize_fit
+import com.vinovim.app.resources.compose_player_resize_stretch
+import com.vinovim.app.resources.compose_player_resize_zoom
+import com.vinovim.app.resources.generic_unknown
+import com.vinovim.app.resources.parental_alcohol
+import com.vinovim.app.resources.parental_frightening
+import com.vinovim.app.resources.parental_nudity
+import com.vinovim.app.resources.parental_profanity
+import com.vinovim.app.resources.parental_severity_mild
+import com.vinovim.app.resources.parental_severity_moderate
+import com.vinovim.app.resources.parental_severity_severe
+import com.vinovim.app.resources.parental_violence
+import com.vinovim.app.resources.compose_player_tba
+import org.jetbrains.compose.resources.stringResource
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+internal fun PlayerScreenContent(args: PlayerScreenArgs) {
+    val playerSettingsUiState by remember {
+        PlayerSettingsRepository.ensureLoaded()
+        PlayerSettingsRepository.uiState
+    }.collectAsStateWithLifecycle()
+    val p2pSettingsUiState by remember {
+        P2pSettingsRepository.ensureLoaded()
+        P2pSettingsRepository.uiState
+    }.collectAsStateWithLifecycle()
+    val p2pStreamingState by P2pStreamingEngine.state.collectAsStateWithLifecycle()
+    val metaScreenSettingsUiState by remember {
+        MetaScreenSettingsRepository.ensureLoaded()
+        MetaScreenSettingsRepository.uiState
+    }.collectAsStateWithLifecycle()
+    val watchedUiState by remember {
+        WatchedRepository.ensureLoaded()
+        WatchedRepository.uiState
+    }.collectAsStateWithLifecycle()
+    val watchProgressUiState by remember {
+        WatchProgressRepository.ensureLoaded()
+        WatchProgressRepository.uiState
+    }.collectAsStateWithLifecycle()
+    val sourceStreamsState by PlayerStreamsRepository.sourceState.collectAsStateWithLifecycle()
+    val episodeStreamsRepoState by PlayerStreamsRepository.episodeStreamsState.collectAsStateWithLifecycle()
+    val metaUiState by MetaDetailsRepository.uiState.collectAsStateWithLifecycle()
+    val addonsUiState by AddonRepository.uiState.collectAsStateWithLifecycle()
+    val addonSubtitles by SubtitleRepository.addonSubtitles.collectAsStateWithLifecycle()
+    val isLoadingAddonSubtitles by SubtitleRepository.isLoading.collectAsStateWithLifecycle()
+
+    val runtime = remember { PlayerScreenRuntime(args) }
+    runtime.args = args
+    val controllerScope = rememberCoroutineScope()
+
+    // While the player is on screen, keyboard arrows and the gamepad drive playback (seek, volume,
+    // play/pause, modals) instead of moving focus around the hidden app shell behind it.
+    DisposableEffect(runtime, controllerScope) {
+        PlayerControllerBridge.register(controllerScope) { command ->
+            runtime.handlePlayerControllerCommand(command)
+        }
+        ControllerFocusEngine.setPlayerEventHandler { event ->
+            when (event) {
+                is ControllerEvent.Navigate -> {
+                    val handled = when (event.direction) {
+                        ControllerDirection.Left -> PlayerControllerBridge.dispatch(PlayerCommand.SeekBack)
+                        ControllerDirection.Right -> PlayerControllerBridge.dispatch(PlayerCommand.SeekForward)
+                        ControllerDirection.Up -> PlayerControllerBridge.dispatch(PlayerCommand.VolumeUp)
+                        ControllerDirection.Down -> PlayerControllerBridge.dispatch(PlayerCommand.VolumeDown)
+                    }
+                    if (handled) ControllerSoundPlayer.playNavigate()
+                    handled
+                }
+                is ControllerEvent.ButtonPressed -> when (event.button) {
+                    XboxButton.A -> PlayerControllerBridge.dispatch(PlayerCommand.TogglePlayback)
+                    XboxButton.B -> PlayerControllerBridge.dispatch(PlayerCommand.Back)
+                    XboxButton.X -> PlayerControllerBridge.dispatch(PlayerCommand.Audio)
+                    XboxButton.Y -> PlayerControllerBridge.dispatch(PlayerCommand.Subtitles)
+                    XboxButton.LB, XboxButton.LT -> PlayerControllerBridge.dispatch(PlayerCommand.SeekBack)
+                    XboxButton.RB, XboxButton.RT -> PlayerControllerBridge.dispatch(PlayerCommand.SeekForward)
+                    XboxButton.Menu -> PlayerControllerBridge.dispatch(PlayerCommand.Episodes)
+                    XboxButton.View -> PlayerControllerBridge.dispatch(PlayerCommand.Sources)
+                    else -> false
+                }
+                else -> false
+            }
+        }
+        onDispose {
+            ControllerFocusEngine.setPlayerEventHandler(null)
+            PlayerControllerBridge.register(null, null)
+        }
+    }
+
+    // The engine publishes a playback snapshot every 250ms. Reading the raw snapshot from this
+    // scope would recompose the whole player subtree four times per second, so the values
+    // below are exposed through derived states that only change when the values do.
+    val isPlaying by remember(runtime) {
+        derivedStateOf { runtime.playbackSnapshot.isPlaying }
+    }
+    val videoSize by remember(runtime) {
+        derivedStateOf {
+            IntSize(runtime.playbackSnapshot.videoWidth, runtime.playbackSnapshot.videoHeight)
+        }
+    }
+    val keepScreenAwake by remember(runtime) {
+        derivedStateOf {
+            runtime.errorMessage == null &&
+                (runtime.playbackSnapshot.isPlaying ||
+                    (runtime.shouldPlay && runtime.playbackSnapshot.isLoading))
+        }
+    }
+
+    BoxWithConstraints(
+        modifier = args.modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.type == PointerEventType.Press) {
+                            if (event.button == PointerButton.Back) {
+                                event.changes.forEach { it.consume() }
+                            } else if (event.button == PointerButton.Forward) {
+                                event.changes.forEach { it.consume() }
+                            }
+                        }
+                    }
+                }
+            },
+    ) {
+        val density = LocalDensity.current
+        val horizontalSafePadding = playerHorizontalSafePadding()
+        val isInPip = rememberIsInPictureInPicture()
+        val dockPartyPanel = LocalFold.current == null && !isInPip && maxWidth > maxHeight
+        val partyPanelWidth = if (dockPartyPanel) minOf(420.dp, maxWidth * 0.45f) else 420.dp
+        val animatedPartyPanelInset by animateDpAsState(
+            targetValue = if (runtime.showPartyPanel && dockPartyPanel) partyPanelWidth else 0.dp,
+            animationSpec = tween(if (runtime.showPartyPanel) 250 else 200),
+            label = "partyPanelInset",
+        )
+        val partyPanelInset = if (dockPartyPanel && !isDesktop) animatedPartyPanelInset else 0.dp
+        val playerWidth = maxWidth - partyPanelInset
+        val metrics = remember(playerWidth) { PlayerLayoutMetrics.fromWidth(playerWidth) }
+
+        runtime.scope = rememberCoroutineScope()
+        runtime.hapticFeedback = LocalHapticFeedback.current
+        runtime.gestureController = rememberPlayerGestureController(
+            restoreBrightness = playerSettingsUiState.touchGesturesEnabled,
+        )
+        runtime.playerSettingsUiState = playerSettingsUiState
+        runtime.p2pSettingsUiState = p2pSettingsUiState
+        runtime.p2pStreamingState = p2pStreamingState
+        runtime.metaScreenSettingsUiState = metaScreenSettingsUiState
+        runtime.watchedUiState = watchedUiState
+        runtime.watchProgressUiState = watchProgressUiState
+        runtime.sourceStreamsState = sourceStreamsState
+        runtime.episodeStreamsRepoState = episodeStreamsRepoState
+        runtime.metaUiState = metaUiState
+        runtime.addonsUiState = addonsUiState
+        runtime.addonSubtitles = mergeStreamAndAddonSubtitles(addonSubtitles, runtime.externalSubtitles)
+        runtime.isLoadingAddonSubtitles = isLoadingAddonSubtitles
+        runtime.horizontalSafePadding = horizontalSafePadding
+        runtime.metrics = metrics
+        runtime.sliderEdgePadding = horizontalSafePadding + metrics.horizontalPadding
+        runtime.overlayBottomPadding = if (isDesktop || playerSettingsUiState.useLegacyPlayerLayout) {
+            sliderOverlayBottomPadding(metrics)
+        } else {
+            playerTimelineBottomInsets(metrics).asPaddingValues().calculateBottomPadding() +
+                72.dp + PlayerSliderOverlayGap
+        }
+        runtime.sideGestureSystemEdgeExclusionPx = with(density) {
+            PlayerSideGestureSystemEdgeExclusion.toPx()
+        }
+        // Left/right system gesture insets are only non-zero when the device uses
+        // gesture navigation, so this keeps the edge back swipe working there and
+        // changes nothing for 3-button navigation.
+        val systemGestureInsets = WindowInsets.systemGestures
+        val layoutDirection = LocalLayoutDirection.current
+        runtime.horizontalSeekSystemEdgeExclusionPx = maxOf(
+            systemGestureInsets.getLeft(density, layoutDirection),
+            systemGestureInsets.getRight(density, layoutDirection),
+        ).toFloat()
+        runtime.resizeModeFitLabel = stringResource(Res.string.compose_player_resize_fit)
+        runtime.resizeModeFillLabel = stringResource(Res.string.compose_player_resize_fill)
+        runtime.resizeModeZoomLabel = stringResource(Res.string.compose_player_resize_zoom)
+        runtime.resizeModeStretchLabel = stringResource(Res.string.compose_player_resize_stretch)
+        runtime.downloadedLabel = stringResource(Res.string.compose_player_downloaded)
+        runtime.airsPrefix = stringResource(Res.string.compose_player_airs_prefix)
+        runtime.tbaLabel = stringResource(Res.string.compose_player_tba)
+        runtime.genericUnknownLabel = stringResource(Res.string.generic_unknown)
+        runtime.parentalGuideLabels = ParentalGuideLabels(
+            nudity = stringResource(Res.string.parental_nudity),
+            violence = stringResource(Res.string.parental_violence),
+            profanity = stringResource(Res.string.parental_profanity),
+            alcohol = stringResource(Res.string.parental_alcohol),
+            frightening = stringResource(Res.string.parental_frightening),
+            severe = stringResource(Res.string.parental_severity_severe),
+            moderate = stringResource(Res.string.parental_severity_moderate),
+            mild = stringResource(Res.string.parental_severity_mild),
+        )
+        if (runtime.playerMetaVideos.isEmpty()) {
+            runtime.playerMetaVideos = MetaDetailsRepository.peek(
+                args.parentMetaType,
+                args.parentMetaId,
+            )?.videos ?: emptyList()
+        }
+        val settingsResizeMode = playerSettingsUiState.resizeMode.supportedOnCurrentPlatform()
+        if (runtime.lastSyncedSettingsResizeMode != settingsResizeMode) {
+            runtime.resizeMode = settingsResizeMode
+            runtime.lastSyncedSettingsResizeMode = settingsResizeMode
+        }
+        runtime.resetIdentityStateIfNeeded()
+
+        EnterImmersivePlayerMode(keepScreenAwake = keepScreenAwake)
+        ManagePlayerPictureInPicture(
+            isPlaying = isPlaying,
+            videoSize = videoSize,
+        )
+        runtime.BindPlayerRuntimeEffects()
+        runtime.RenderPlayerRuntimeUi(
+            partyPanelWidth = partyPanelWidth,
+            partyPanelInset = partyPanelInset,
+            dockPartyPanel = dockPartyPanel,
+        )
+    }
+}

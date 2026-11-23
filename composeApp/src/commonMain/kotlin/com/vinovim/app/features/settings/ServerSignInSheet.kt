@@ -1,0 +1,280 @@
+package com.vinovim.app.features.settings
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
+import com.vinovim.app.core.ui.VinovimLoadingIndicator
+import com.vinovim.app.core.ui.VinovimModalBottomSheet
+import com.vinovim.app.core.ui.VinovimTokens
+import com.vinovim.app.core.ui.dismissVinovimBottomSheet
+import com.vinovim.app.core.ui.vinovim
+import com.vinovim.app.features.servers.ServerConnection
+import com.vinovim.app.features.servers.ServerException
+import com.vinovim.app.features.servers.ServerFailure
+import com.vinovim.app.features.servers.ServerProvider
+import com.vinovim.app.features.servers.ServerRepository
+import com.vinovim.app.features.servers.plex.PlexProvider
+import com.vinovim.app.features.servers.silo.SiloProvider
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import com.vinovim.app.resources.Res
+import com.vinovim.app.resources.servers_address
+import com.vinovim.app.resources.servers_address_hint
+import com.vinovim.app.resources.servers_connect
+import com.vinovim.app.resources.servers_connecting
+import com.vinovim.app.resources.servers_error_address
+import com.vinovim.app.resources.servers_error_auth
+import com.vinovim.app.resources.servers_error_failed
+import com.vinovim.app.resources.servers_error_forbidden
+import com.vinovim.app.resources.servers_error_unreachable
+import com.vinovim.app.resources.servers_error_unsupported
+import com.vinovim.app.resources.servers_failure_remote_playback
+import com.vinovim.app.resources.servers_password
+import com.vinovim.app.resources.servers_sign_in_subtitle
+import com.vinovim.app.resources.servers_sign_in_title
+import com.vinovim.app.resources.servers_username
+import org.jetbrains.compose.resources.stringResource
+
+internal data class ServerSignInRequest(
+    val provider: ServerProvider,
+    val address: String = "",
+    val username: String = "",
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ServerSignInSheet(
+    request: ServerSignInRequest,
+    onConnected: (ServerConnection) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    when (val provider = request.provider) {
+        is PlexProvider -> {
+            PlexSignInSheet(provider = provider, onConnected = onConnected, onDismiss = onDismiss)
+            return
+        }
+        is SiloProvider -> {
+            SiloSignInSheet(provider = provider, address = request.address, onConnected = onConnected, onDismiss = onDismiss)
+            return
+        }
+        else -> Unit
+    }
+    val tokens = MaterialTheme.vinovim
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var address by rememberSaveable { mutableStateOf(request.address) }
+    var username by rememberSaveable { mutableStateOf(request.username) }
+    var password by remember { mutableStateOf("") }
+    var connecting by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<ServerFailure?>(null) }
+    val canConnect = !connecting && address.isNotBlank() && username.isNotBlank()
+
+    fun connect() {
+        if (!canConnect) return
+        connecting = true
+        error = null
+        scope.launch {
+            try {
+                val connection = ServerRepository.connect(request.provider, address, username.trim(), password)
+                password = ""
+                dismissVinovimBottomSheet(sheetState) { onConnected(connection) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: ServerException) {
+                error = failure.failure
+            } catch (_: Exception) {
+                error = ServerFailure.FAILED
+            } finally {
+                connecting = false
+            }
+        }
+    }
+
+    VinovimModalBottomSheet(
+        onDismissRequest = { if (!connecting) onDismiss() },
+        sheetState = sheetState,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(
+                    start = tokens.spacing.sheetPadding,
+                    end = tokens.spacing.sheetPadding,
+                    bottom = tokens.spacing.sheetPadding,
+                ),
+        ) {
+            SheetHeader(
+                title = stringResource(Res.string.servers_sign_in_title, request.provider.displayName),
+                subtitle = stringResource(Res.string.servers_sign_in_subtitle, request.provider.displayName),
+            )
+            Spacer(modifier = Modifier.height(VinovimTokens.Space.s20))
+            Column(verticalArrangement = Arrangement.spacedBy(VinovimTokens.Space.s12)) {
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = {
+                        address = it
+                        error = null
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !connecting,
+                    singleLine = true,
+                    label = { Text(stringResource(Res.string.servers_address)) },
+                    placeholder = { Text(stringResource(Res.string.servers_address_hint)) },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        autoCorrectEnabled = false,
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Next,
+                    ),
+                    shape = tokens.shapes.button,
+                    colors = sheetFieldColors(),
+                )
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = {
+                        username = it
+                        error = null
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !connecting,
+                    singleLine = true,
+                    label = { Text(stringResource(Res.string.servers_username)) },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Next,
+                    ),
+                    shape = tokens.shapes.button,
+                    colors = sheetFieldColors(),
+                )
+                SettingsSecretTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        error = null
+                    },
+                    label = stringResource(Res.string.servers_password),
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !connecting,
+                    shape = tokens.shapes.button,
+                    colors = sheetFieldColors(),
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { connect() }),
+                )
+            }
+            error?.let { failure ->
+                Spacer(modifier = Modifier.height(VinovimTokens.Space.s10))
+                Text(
+                    text = failure.signInMessage(request.provider),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = tokens.colors.danger,
+                )
+            }
+            Spacer(modifier = Modifier.height(VinovimTokens.Space.s20))
+            Button(
+                onClick = ::connect,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(VinovimTokens.Space.s56),
+                enabled = canConnect,
+                shape = tokens.shapes.button,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = tokens.colors.accent,
+                    contentColor = tokens.colors.onAccent,
+                ),
+            ) {
+                if (connecting) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(VinovimTokens.Space.s8),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        VinovimLoadingIndicator(
+                            modifier = Modifier.size(tokens.icons.sm),
+                            color = tokens.colors.onAccent,
+                        )
+                        Text(stringResource(Res.string.servers_connecting))
+                    }
+                } else {
+                    Text(stringResource(Res.string.servers_connect))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun SheetHeader(title: String, subtitle: String) {
+    val tokens = MaterialTheme.vinovim
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        color = tokens.colors.textPrimary,
+        fontWeight = FontWeight.SemiBold,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+    Spacer(modifier = Modifier.height(VinovimTokens.Space.s4))
+    Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodyMedium,
+        color = tokens.colors.textSecondary,
+    )
+}
+
+@Composable
+internal fun sheetFieldColors(): TextFieldColors {
+    val colors = MaterialTheme.vinovim.colors
+    return OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = colors.borderFocus,
+        unfocusedBorderColor = colors.borderDefault,
+        focusedTextColor = colors.textPrimary,
+        unfocusedTextColor = colors.textPrimary,
+        focusedLabelColor = colors.textSecondary,
+        unfocusedLabelColor = colors.textMuted,
+        cursorColor = colors.accent,
+    )
+}
+
+@Composable
+private fun ServerFailure.signInMessage(provider: ServerProvider): String = when (this) {
+    ServerFailure.AUTH_REQUIRED -> stringResource(Res.string.servers_error_auth)
+    ServerFailure.NOT_FOUND -> stringResource(Res.string.servers_error_address)
+    ServerFailure.UNREACHABLE -> stringResource(Res.string.servers_error_unreachable)
+    ServerFailure.UNSUPPORTED -> stringResource(Res.string.servers_error_unsupported, provider.displayName, provider.minimumVersion)
+    ServerFailure.FORBIDDEN -> stringResource(Res.string.servers_error_forbidden)
+    ServerFailure.REMOTE_PLAYBACK_BLOCKED -> stringResource(Res.string.servers_failure_remote_playback)
+    ServerFailure.INCOMPLETE,
+    ServerFailure.FAILED -> stringResource(Res.string.servers_error_failed)
+}

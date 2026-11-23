@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.vinovim" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/vinovim_background</item>
+    </style>
+
+    <style name="Theme.vinovim.Splash" parent="@style/Theme.vinovim" />
+    <style name="Theme.vinovim.Splash.ArcticBlue" parent="@style/Theme.vinovim.Splash" />
+    <style name="Theme.vinovim.Splash.Emerald" parent="@style/Theme.vinovim.Splash" />
+    <style name="Theme.vinovim.Splash.RoseGold" parent="@style/Theme.vinovim.Splash" />
+    <style name="Theme.vinovim.Splash.Copper" parent="@style/Theme.vinovim.Splash" />
+    <style name="Theme.vinovim.Splash.Graphite" parent="@style/Theme.vinovim.Splash" />
+</resources>

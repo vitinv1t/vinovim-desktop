@@ -1,0 +1,2 @@
+headers = AppIconBridge.h
+package = com.vinovim.app.nativebridge

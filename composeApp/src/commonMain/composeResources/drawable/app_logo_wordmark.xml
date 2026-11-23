@@ -1,0 +1,41 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="200dp"
+    android:height="48dp"
+    android:viewportWidth="200"
+    android:viewportHeight="48">
+    <defs>
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="200"
+                android:endY="0"
+                android:type="linear">
+                <item android:offset="0" android:color="#FF8B5CFF"/>
+                <item android:offset="0.5" android:color="#FFFF4D94"/>
+                <item android:offset="1" android:color="#FFFF6A6A"/>
+            </gradient>
+        </aapt:attr>
+        <!-- V icon path + "vinovim" text as paths will be drawn via Canvas in Compose -->
+    </defs>
+    <!-- V mark: two strokes meeting at center-bottom -->
+    <path
+        android:pathData="M6,8 L16,40 L26,8"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="6"
+                android:startY="8"
+                android:endX="26"
+                android:endY="40"
+                android:type="linear">
+                <item android:offset="0" android:color="#FF8B5CFF"/>
+                <item android:offset="1" android:color="#FFFF4D94"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
