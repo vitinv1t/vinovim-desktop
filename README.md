@@ -3,15 +3,14 @@
   <h1>Vinovim Desktop</h1>
   <p>Player de mídia gratuito para Windows, macOS e Linux.</p>
   <p>
-    <a href="https://github.com/vitinv1t/vinovim-desktop/releases">Download</a> &nbsp;·&nbsp;
-    <a href="https://vinovim.tv">Site</a> &nbsp;·&nbsp;
+    <a href="https://github.com/vitinv1t/vinovim-desktop/releases">Download</a>  · 
+    <a href="https://vinovim.tv">Site</a>  · 
     <a href="https://github.com/vitinv1t/vinovim-desktop/issues">Reportar problema</a>
   </p>
 </div>
 
 > 🚧 **Versão alpha.** O Vinovim Desktop ainda está sendo construído. Use por conta e risco — coisas vão quebrar, dados podem ser perdidos e atualizações podem mudar tudo. Se você está aqui, é porque quer ajudar a testar, e isso é muito bem-vindo.
 
-&nbsp;
 
 ## O que é
 
@@ -19,7 +18,6 @@ Vinovim Desktop é um player de mídia open source que funciona com as suas pró
 
 Roda no mesmo código base que o Vinovim para Android e iOS.
 
-&nbsp;
 
 ## Download
 
@@ -31,7 +29,6 @@ Roda no mesmo código base que o Vinovim para Android e iOS.
 
 Todas as versões em [Releases](https://github.com/vitinv1t/vinovim-desktop/releases).
 
-&nbsp;
 
 ## Como compilar
 
@@ -66,7 +63,6 @@ Gerar pacote de release:
 ./gradlew :composeApp:packageReleaseDeb
 ```
 
-&nbsp;
 
 ## Android e iOS
 
@@ -78,7 +74,6 @@ Gerar pacote de release:
 open iosApp/iosApp.xcodeproj
 ```
 
-&nbsp;
 
 ## Tecnologia
 
@@ -91,24 +86,20 @@ open iosApp/iosApp.xcodeproj
 | Rede | Ktor |
 | P2P | Vinovim Engine |
 
-&nbsp;
 
 ## Contribuir
 
 Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir um pull request. Bugs e sugestões vão em [Issues](https://github.com/vitinv1t/vinovim-desktop/issues).
 
-&nbsp;
 
 ## Licença
 
 [GNU General Public License v3.0](LICENSE)
 
-&nbsp;
 
 <details>
 <summary>🇬🇧 English</summary>
 
-&nbsp;
 
 Vinovim Desktop is a free, open-source media player for Windows, macOS, and Linux. Use your own content sources — Vinovim organizes them into a library with artwork, ratings, subtitles, and playback progress synced across devices. No subscription, no locked platform.
 
